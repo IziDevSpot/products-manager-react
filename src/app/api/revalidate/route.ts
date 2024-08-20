@@ -1,21 +1,24 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const path = searchParams.get('path');
+
+  if (!path) {
+    return NextResponse.json({ message: 'Path is required' }, { status: 400 });
   }
 
   try {
-    const path = req.query.path as string;
-    if (!path) {
-      return res.status(400).json({ message: 'Path is required' });
-    }
-
-    await res.revalidate(path);
-    return res.json({ revalidated: true });
+    // Assuming you have a function to perform revalidation
+    await revalidate(path);
+    return NextResponse.json({ revalidated: true });
   } catch (err) {
-    return res.status(500).send('Error revalidating');
+    return NextResponse.json({ message: 'Error revalidating' }, { status: 500 });
   }
-};
+}
 
-export default handler;
+async function revalidate(path: string) {
+  // Implement your revalidation logic here
+  // For example, you might use a library or service to revalidate the path
+  console.log(`Revalidating path: ${path}`);
+}
